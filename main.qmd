@@ -1,0 +1,336 @@
+---
+title: "Underspecification in BMRS: Evidence from Spanish Spirantization"
+shorttitle: "BMRS Underspecification"
+author:
+  - name: Robert Esposito
+    corresponding: true
+    email: rme70@rutgers.edu
+    affiliations:
+      - name: Rutgers University
+        department: Department of Spanish and Portuguese
+        address: 15 Seminary Place
+        city: New Brunswick
+        region: NJ
+        country: USA
+        postal-code: 08901-8554
+
+abstract: "This is where the abstract goes."
+keywords: [phonology, BMRS, computational linguistics, underspecification]
+floatsintext: TRUE
+bibliography: "./lit/bmrs_underspecification.bib"
+suppress-title-page: false
+link-citations: true
+number-sections: TRUE
+
+format:
+  apaquarto-docx: default
+  apaquarto-html: default
+  apaquarto-typst: default
+  apaquarto-pdf:
+    documentmode: man
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Set document defaults
+knitr::opts_chunk$set(
+  cache.extra = knitr::rand_seed, 
+  fig.retina = 2, 
+  echo = F, 
+  message = F, 
+  warning = F,
+  fig.asp = 0.5625,
+  out.width = "100%",
+  dpi = 300, 
+  fig.path = 'figs/', 
+  dev = c("png", "pdf")
+  )
+
+# load libs
+library("here")
+library("tidyverse")
+library("fs")
+library("dplyr")
+library("tidyr")
+library("stringr")
+library("knitr")
+library("kableExtra")
+library("flextable")
+library("ftExtra")
+```
+
+It is clear that (adult) speakers of human language do not store all phonetic detail in their <span style="font-variant:small-caps;">representational knowledge</span>, or the data structure of the phonological elements in the system, but it remains unclear what details are stored. @archangeli1984underspecification, taking inspiration from the lexical phonology proposed by @kiparsky1982cyclic, developed Underspecification Theory. She noted the asymmetrical distribution of a language's phonological feature inventory and its phonological rules. Although she did not refer to these components as such, we can now reinterpret this asymmetry as one between a language's <span style="font-variant:small-caps;">representational knowledge</span> and its <span style="font-variant:small-caps;">computational knowledge</span>, the operations that are computed over phonological elements.
+
+Underspecification has received much attention and reinterpretation in the literature [e.g., @archangeli1984underspecification; @kiparsky1982cyclic; @avery1989constraining; @dresher2009contrastive; @steriade1995underspecification], primarily relying on underspecification in the <span style="font-variant:small-caps;">representation</span> to explain computational processes' targets. Recent work has challenged the strict separation between <span style="font-variant:small-caps;">representational</span> and <span style="font-variant:small-caps;">computational</span> knowledge.  @nelson2024underspecification offered an alternative hypothesis to underspecification: underspecified <span style="font-variant:small-caps;">representations</span> are epiphenomenal, and the types of phonological processes where they are regularly employed implicate only <span style="font-variant:small-caps;">computational knowledge</span>. @nelson2024underspecification proposed an Underspecification Map, formalized using Boolean Monadic Recursive Schemes (BMRS; @chandlee2021computational), which determines the valuation of a given feature, crucially without referring to an "underspecified" segment's underlying valuation of that feature.
+
+In Spanish, stop-spirant alternation has been previously analyzed as a case of underspecification, where voiced obstruents are underlyingly underspecified for the feature [continuant] [@colina2016onset; @colina2020spirantization]. The present study applies the Underspecification Map [@nelson2024underspecification; @nelson2024computation] to analyze this alternation in two Spanish varieties to determine (1) if the stop-spirant alternation can be formalized with the Underspecification Map in BMRS and (2) if two varieties of Spanish can be modeled using minimally-different models.
+
+# Background {#sec-bg}
+
+This study investigates the functionality of the Underspecification Map [@nelson2024underspecification; @nelson2024computation] in stop-spirant alternation of two Spanish varieties. The following section outlines the traditional analysis of underspecification and an underspecification approach to the Spanish stop-spirant alternation, the issues with such an analysis, the alternative hypothesis to underspecification that relies on the computational Underspecification Map, and the formal language used for analysis, BMRS. 
+
+## Previous Analyses of Underspecification {#sec-us}
+
+One of the earliest proposals of underspecification, although not named as such at the time, was put forth by @kiparsky1982cyclic. In his analysis, phonological elements are minimally represented underlyingly, such that only *contrastive* features are stored in the lexicon, and that these "missing" features are filled in only later in the derivation via redundancy rules. An example of such a redudancy rule could be [+ syllable] → [+ voice] (if [+ syllabic], then [+ voice]), under the reasoning that all vowels are [+ voice] by default, and so the valuation of [voice] should not be included in the representation of vowels in the lexicon.
+
+@archangeli1984underspecification later developed this representational analysis in Underspecification Theory. Notably, she found an asymmetry between a language's representational inventory and the phonological processes acting over this inventory. For example, @archangeli1984extratonality proposed an analysis of Tokyo Japanese in which only High tones are referred to in the computational component of the grammar, but both High and Low tones surface.
+
+In modern phonology, many feature systems take underspecification for granted and include a [0] feature valuation in the representation. The value [0] serves two theoretical purposes. First, it may act as a placeholder for a feature that is irrelevant to a given segment. For example, the feature [ATR] is only relevant to vowels, and all other segments receive the valuation [0 ATR] in the representation. The second purpose, and relevant to the current analysis, is to allow for underspecification. By underspecifying certain segments, they may be excluded desireably from phonological processes that would otherwise target them. For example, sonorants may be represented as [0 voice], which allows them to be excluded from voicing assimilation processes.
+
+The following section will elucidate the Spanish stop-spirant alternation data in two varieties that have minimal differences, as well as an account of underspecification for those two dialects.
+
+## Spanish Stop-Spirant Alternation {#sec-data}
+
+Spanish stop-spirant alternation has been documented as early as @navarro1957manual, but it has proven a tricky process to model. @tbl-alternation provides data from two dialects, one from Spain and one from Costa Rica [@carrasco2012dialectal; @colina2020spirantization]. Notably, underlying forms are *not* included, as the actual status of the underlying forms of voiced obstruents as stop or spirant are irrelevent to the arguments being made in this investigation.
+
+Traditionally, stop-spirant alternation in Spanish has been viewed as a lenition process such that underlyingly voiced stops /b d g/ lenite in all positions to [β ð ɣ], respectively, except for when preceded by a pause (i.e., ultimate initial position), a homorganic nasal, or in the case of /d/, a lateral. This is the pattern described by @navarro1957manual, but as early as @fernandez1982allophones, it was noted that a Costa Rican variety of Spanish does not follow this pattern. The spirants in the documented Costa Rican variety surface more restrictively, only in post-vocal contexts. @colina2020spirantization refers to the latter variety's pattern as "stop-dominant".
+
+```{r}
+#| label: tbl-alternation
+#| tbl-cap: Stop-spirant alternations depending on preceding phonological environment in two dialects in Spain and Costa Rica.
+
+stop_spirant_alternation_raw <- read_csv(here("data", "stop_spirant_alternation.csv"))
+
+stop_spirant_alternation_clean <- stop_spirant_alternation_raw %>%
+  fill(Context) %>%
+  filter(!is.na(Word))
+
+ft <- stop_spirant_alternation_clean %>%
+  mutate(row_id = row_number(),
+         group_row = ceiling(row_id / 3)) %>%
+  flextable(col_keys = c("Context", "Word", "Spain", "Costa Rica", "English")) %>%
+  merge_v(j = "Context") %>%
+  theme_booktabs() %>%
+  autofit() %>%
+  align(align = "left", part = "all") %>%
+  bg(i = ~ group_row %% 2 == 1, bg = "#F5F5F5")
+
+ft
+```
+
+Various accounts have been used to capture the more general Spain-like process, one of which is underspecification. @colina2020spirantization argues for a reduction-of-effort account, in which voiced obstruents are underspecified for the feature [continuant] in the representation, and only becomes specified as [- continuant] or [+ continuant] at the phonetic level. @colina2016onset also argues that the underspecification for [continuant] explains complex onset phonotactics, such that both continuancy and sonority contribute to grammatical complex onset clusters, which must be maximally distinct. Under this analysis, @colina2016onset further claims that /f/ is also underspecified for [continuant] to explain grammatical onset clusters like /fɾ/ and /fl/ (e.g., fregar, flotar), but ungrammatical /\*θɾ \*θl/ or /\*sɾ \*sl/.
+
+Although underspecification of [continuant] provides a desirable account of complex onset clusters, it does not necessarily conform to typical cases of underspecification. For example, in comparison with the Russian voicing analysis [@nelson2024underspecification] where there is a clear redundancy rule independent of phonological context (i.e., if [+ sonorant], then [+ voice]), the surface forms of Spanish voiced obstruents are dependent on phonological context. 
+
+Furthermore, the lateral /l/ patterns dissimilarly from other sonorants. While other sonorants always surface as [+ continuant], /l/ surfaces variably as [- continuant] or [+ continuant] depending if /d/ follows it (e.g., caldo [káldo] 'broth'). @colina2020spirantization motivates this behavior by appealing to highly-ranked non-coronal lateral constraints and a <span style="font-variant:small-caps;">agree</span> constraint for the feature [continuant]. Although this approach accurately predicts surface [continuant] values, it fails to provide a holistic account of the feature in the language and seems problematic to explain complex onset clusters. First, /l/ is identified as underlyingly [+ continuant] so that it may be maximally distinct in sonority from the viable segments with which it can appear with in an onset. This means that when it surfaces as [- continuant] preceding /d/, it must assimilate in [continuant] to /d/. This seems strange, given that /d/ is meant to be underspecified for [continuant]. On the same topic of complex onset clusters, the explanation that /f/ is viable in complex onset clusters due to sonority, but /s/ is not fails to account for the wider restriction on /s/ + obstruent complex onset clusters in a holistic way.
+
+In sum, underspecification provides a possible account for Spanish stop-spirant alternation and onset cluster phonotactics, but there are some undesirable consequences and remaining questions from this account. What follows is an alternative proposal to underspecification.
+
+## A Computational Approach to Underspecification {#sec-nus}
+
+Although it is largely agreed that humans do not store all phonetic details of speech, it remains unclear how the phonological representations are structured. Since the introduction of Underspecification Theory, there have been many proposals for varying representations of underspecification, such as privative [@steriade1995underspecification], full binary [@archangeli1984underspecification], and contrastive [@dresher2009contrastive] systems. @nelson2022model investigated the formal and empirical consequences of three prominent representational systems (privative, full binary, and contrastive) using tools from model theory and logic. Through this analysis, he determined if there were meaningful differences between the systems at the representational level, as well as if those differences were dependent on the logical language used to evaluate them. He found that correctly predicting natural classes, without overgeneration or undergeneration, relies on both the <span style="font-variant:small-caps;">representational encoding</span> and <span style="font-variant:small-caps;">computational evaluation language</span>. 
+
+Based on this finding, he later proposed an alternative approach to underspecification [@nelson2024underspecification]. In this new approach, phonological processes in which underspecified representations are typically employed implicate only computational knowledge, with the underspecified representation occurring as a natural consequence, or epiphenomenally, instead of the driving force.
+
+The movement from underspecification as a representational phenomenon to solely a computational one is desirable for a number of reasons. First, it replaces ad-hoc redundancy rules such as those first proposed by @kiparsky1982cyclic with a logical mapping to determine feature valuation that does not rely on underspecified features in the representation. This is in line with the asymmetry noted by @archangeli1984underspecification. Second, many cases of underspecification find contradiction in that the underspecified segments behave at times specified at early stages of the derivation, but unspecified at later stages. For example, @nelson2024computation analyzed the feature [coronal] in English, which has been taken to be underspecified. At the postlexical level, coronal nasals assimilate in place to the following obstruent (e.g., i[ŋ] [k]anada versus fro[m] [k]anada). However, at the lexical level, [coronal] is necessarily specified to account for voicing differences in derived forms (advis[e] ~ advi[z]ory versus re[f] ~ re[f]er). By reanalyzing underspecification as a computational phenomenon, the paradoxical behavior is explained away by determining the output property for [coronal] without referring to the specification of [coronal] in the input. Third, and finally, analyzing traditionally underspecified representations as a computational phonemenon narrows the hypothesis space of learners by enhancing empirical restrictiveness and learnability. A computational approach standardizes how valuations are computed, and does not burden the learner with acquiring various ad-hoc redundancy rules.
+
+@nelson2024underspecification used the formal language Boolean Monadic Recursive Schemes (BMRS; @chandlee2021computational) to instantiate this new approach to underspecification. The following section reviews BMRS, the Underspecification Map proposed by @nelson2024underspecification which determines if something is consequently underspecified underlyingly, and the current literature that has tested his hypothesis.
+
+## Underspecification in BMRS {#sec-bmrs}
+
+Boolean Monadic Recursive Schemes (BMRS; @chandlee2021computational) is a phonological theory that uses 'if... then... else' syntax to license or block feature specification based on observed computational properties of phonological patterns. As the name indicates, functions in BMRS are composed of monadic predicates that take a single argument, recursively apply, and return a boolean value ⊤ or ⊥ to determine feature valuation.
+
+@nelson2024underspecification proposed an Underspecification Map, a segmental phonological map formalized in BMRS to output feature valuations for traditionally underspecified representations (1). The primary claim is that these maps share the same computational structure regardless of representational encoding.
+
+1. *Underspecification Map Criteria*
+   a. The map will define input-output conditions for the “underspecified feature”.  
+   b. Any underspecification map will include a nested conditional BMRS term.  
+   c. Both the upper conditional P and lower conditional Q will determine a truth value based on the antecedent of the redundancy rule that fills in the “underspecified feature”.  
+   d. P partitions the set of targets while Q partitions the set of triggers.
+
+@nelson2024underspecification highlights that the relationship between (1a) and (1c) is critical in classifying this map. As opposed to referring to the underspecified feature directly, the mapping works to define feature valuations based on the antecedent of the given redundancy rule. He gives Russian sonorant underspecification as an example (@fig-russian). Here, the phonological phenemona goes from being about [voice], the underspecified feature, to being about [sonorant], the feature that determines the valuation of [voice]. Furthermore, the upper conditional partitions the set of targets (sonorants), while Q partitions the set of triggers (obstruents followed by sonorants).
+
+
+```{r}
+#| label: fig-russian
+#| fig-cap: A BMRS function to determine [voice] feature valuation in Russian that conforms to the Underspecification Map.
+knitr::include_graphics(
+  here("figs", "russian_function.png")
+  )
+```
+
+Currently, there is little literature that has investigated the computational-only approach to phonological phenomena that have traditionally be treated with underspecification. @nelson2024underspecification has investigated Russian sonorants underspecified for voice and Turkish word-final obstruents underspecified for voice. 
+
+@nelson2024computation investigated the English feature [coronal] (@fig-english). Despite previous efforts to claim that [coronal] is underspecified in English, the researchers here find that the feature must be fully specified, as it does not comply with criteria (1c) of the Underspecification Map. However, BMRS still accurately captures its seemingly paradoxical behavior, unlike previous approaches, by making no use of any input [coronal] feature in its valuation of the output [coronal] feature. That is, the BMRS function does call call `cor()` on any input segment, allowing the feature to behave as if underspecified at the post-lexical level as desired. Notably, @fig-english fails to comply with the original conception of BMRS by allowing for non-boolean values [@chandlee2021computational).
+
+```{r}
+#| label: fig-english
+#| fig-cap: BMRS function to determine [coronal] feature valuation in English, which does not conform to the Underspecification Map.
+knitr::include_graphics(
+  here("figs", "english_function.png")
+  )
+```
+
+# Spanish Stop-Spirant Alternation in BMRS
+
+The current investigation will continue work in this area in modeling Spanish stop-spirant alternation in two Spain and Costa Rican varieties of Spanish, the first following a more generalized pattern, and the second featuring a more region-restricted pattern described in @sec-data. First, decision trees will be displayed to determine the output values of the feature [continuant] in both Spanish varieties. Then, the BMRS functions to determine the feature value [continuant] will be considered.
+
+## Spanish Stop-Spirant Decision Trees
+
+As explained in @sec-bmrs, BMRS uses 'if... then... else' syntax to output boolean values, which can be represented by a decision tree. The decision trees here have two nodes: a rotated-square node that represents conditionals and a rectangular node that represents output values of the function. @fig-spain-tree represents the Spain variety's decision tree, while @fig-cr-tree represents the Costa Rican variety.
+
+```{r}
+#| label: fig-spain-tree
+#| fig-cap: Decision tree to determine [continuant] value in Spain variety.
+knitr::include_graphics(
+  here("figs", "spain_tree.png")
+  )
+```
+
+```{r}
+#| label: fig-cr-tree
+#| fig-cap: Decision tree to determine [continuant] value in Costa Rican variety.
+knitr::include_graphics(
+  here("figs", "cr_tree.png")
+  )
+```
+
+The two trees are quite different, reflecting the different patterning in the two varieties. The Spain variety's tree is necessarily more complicated, involving 7 conditional expressions, as opposed to the Costa Rican's tree's 3. Furthermore, where the Spain tree must refer to Place of Articulation of the following segment to determine the feature value [continuant] for the lateral and voiced obstruents, the Costa Rican tree relies only on the preceding segment to determine the [continuant] value of voiced obstruents. However, it is notable that the initial conditional ("is *x* consonantal?") is identical between the two.
+
+Due to the expressive nature of BMRS, there are alternative analyses possible. One such analysis for the Spain tree allows for a more parsimonious tree with only 6 conditionals (@fig-spain-alternative). The underlying feature value of [continuant] must now be called upon for vowels and glides, which does not seem desirable, as vowels and glides are obligatorily [+ continuant], and this is presumably not stored at the representational level due to the predictable nature of it. Furthermore, sonorants are partitioned from non-sonorants, diverging from the Costa Rican tree (@fig-cr-tree). The Costa Rican tree can be reanalyzed with the same number of conditional expressions to initially partition sonorants from non-sonorants, but it runs into the same issue of requiring vowels and glides to have underlying [continuant] feature values. Lastly, the similar starting points for the Spain (@fig-spain-tree) and Costa Rican (@fig-cr-tree) trees is desirable from a theoretical perspective: it would make sense that two varieties of the same language would have the same foundation, especially when the point at which they diverge are two features ([sonorant] and [voice]) that have a special relationship.
+
+```{r}
+#| label: fig-spain-alternative
+#| fig-cap: Alternative decision tree to determine [continuant] value in Spain variety. This tree is more parsimonious, but diverges significantly from the Costa Rican decision tree and also requires that cont(x) be called upon vowels and glides, which presumably do not store the feature [continuant] in the representation. 
+knitr::include_graphics(
+  here("figs", "spain_tree_alternative.png")
+  )
+```
+
+In the following section, the original decision trees proposed (for Spain, @fig-spain-tree; for Costa Rica, @fig-cr-tree) will be "translated" to BMRS functions.
+
+## Spanish [continuant] BMRS Function {#sec-results}
+
+The Spain (@fig-spain-tree) and Costa Rican (@fig-cr-tree) varieties' decision trees as BMRS functions are formalized in (2) and (3), respectively. For simplicity's sake, the predicate `poa()`, which checks a segment's Place of Articulation, returns a non-boolean value. Although this goes counter to BMRS, non-boolean values have been used in other works [@nelson2024computation], and the lines that call it have the potential to be rewritten to output boolean values. Furthermore, all predicates except for `poa()` must be called on the underlying values. `poa()`, on the other hand, must be called on the surface values to capture cases such as mango [máŋgo] 'mango', where the nasal consonant assimilates to place of the following consonant and blocks spirantization (or, depending on the analysis of the underlying voiced obstruent segment, forces the segment to surface "faithfully" as a stop; here, no specific underlying analysis is claimed).
+
+For an explanation of each predicate, please see @sec-appendix-a. Some example computations of the Spanish function (2) are included in @sec-appendix-b.
+
+```markdown
+(2) ϕcontinuant_spain(x) :=
+    IF cons(x) THEN 
+      IF son(x) THEN
+        IF lateral(x) THEN
+          IF poa(x) == poa(s(x)) THEN ⊥
+          ELSE T
+        ELSE cont(x)
+      ELSE IF voice(x) THEN
+        IF ⋉(x) THEN ⊥
+        ELSE IF poa(x) == poa(p(x)) THEN cont(p(x))
+        ELSE T
+      ELSE cont(x)
+    ELSE T
+```
+
+```markdown
+(3) ϕcontinuant_costarican(x) :=
+    IF cons(x) THEN
+      IF voice(x) THEN
+        IF cons(p(x)) THEN ⊥
+        ELSE T
+      ELSE cont(x)
+    ELSE T
+```
+
+# Discussion
+
+The first notable thing about both functions in @sec-results is that they do not conform to the Underspecification Map (@tbl-criteria-check). The two functions comply with criteria (a), that the function must define input-output conditions for the "underspecified feature" [@colina2020spirantization], as well as criteria (b), that the function must include a nested conditional BMRS term. 
+
+```{r}
+#| label: tbl-criteria-check
+#| tbl-cap: Evaluation of the ϕcontinuant() function for Spain and Costa Rican varieties against the Underspecification Map.
+
+underspec_criteria <- tibble(
+  ` ` = c("a.", "b.", "c.", "d."),
+  criteria = c(
+    "The map will define input-output conditions for the “underspecified feature”.",
+    "Any underspecification map will include a nested conditional BMRS term.",
+    "Both the upper conditional P and lower conditional Q will determine a truth value based on the antecedent of the redundancy rule that fills in the “underspecified feature”.",
+    "P partitions the set of targets while Q partitions the set of triggers."
+  ),
+  Spain = c(
+    "✓",
+    "✓",
+    "✗",
+    "✗"
+  ),
+  `Costa Rica` = c(
+    "✓",
+    "✓",
+    "✗",
+    "✗"
+  )
+)
+
+flextable(underspec_criteria) %>%
+  set_header_labels(
+    ` ` = "",
+    criteria = "Criteria",
+    Spain = "Spain",
+    `Costa Rica` = "Costa Rica"
+  ) %>%
+  theme_booktabs() %>%
+  autofit() %>%
+  width(j = 1, width = 0.4) %>%         
+  width(j = 2, width = 4.5) %>%         
+  width(j = 3:4, width = 1.0) %>%       
+  align(align = "left", part = "all")
+
+
+```
+
+However, conditions (c) and (d) are violated. Condition (c) requires that there be two major conditionals, P and Q, and they must determine the output truth value of the feature value based on the antecedent of the redundancy rule. The redundancy rule for this case is difficult, if not impossible, to define. It may be possible to define a rule such as, "If [- sonorant, + consonatal, + voice], then [+ continuant] if after a vowel and [- continuant] elsewhere", but this does not have the shape of a typical redundancy rule. In the case of the Spain function, the rule would have to be further complicated to somehow include both voiced obstruents and the lateral /l/.
+
+Condition (d) is violated in the current conception of the Underspecification Map. That is, although there are no singular P and Q conditionals that respectively partition the set of targets and the set of triggers, it is notable that the function *does* partition the set of target segments and then the set of triggering environments. In the Costa Rican functions, first consonantals are partitioned, then voiced segments, and finally the triggering phonological environment is targeted (post-consonantal). This is also the case for the Spain function: first the target segments are partitioned, and only later are the triggering environments referred to.
+
+These results seem to indicate that voiced obstruents are not underspecified for the feature value [continuant] in Spanish, but the functions defined here do not make reference to the input [continuant] value of any voiced obstruents @colina2016onset ['s] claim that underspecification accounts for complex onset phonotactics, then, is still potentially viable with the account presented here, as there is currently no use of [continuant] in the representation of voiced obstruents in Spanish. A cohesive issue, however, is that @colina2016onset claims that /f/ is underspecified for [continuant], as well (see @sec-data). Here, /f/ is obligatorily specified for [continuant], making it difficult to explain the difference between grammatical onset clusters /fr fl/ versus ungrammatical /\*θɾ \*θl/ and /\*sɾ \*sl/ under @colina2016onset ['s] analysis.
+
+# Future Direction
+
+The current work has defined functions to output [continuant] feature values in a Spain and a Costa Rican variety of Spanish. Going forward, it would be ideal to model other varieties of Spanish that display different patterns of stop-spirant alternation and determine if they can be similarly built upon the key features in the same order of the defined functions: [consonantal], [sonorant], and [voice].
+
+Furthermore, phonetic studies of the type @carrasco2012dialectal may be of interest. @carrasco2012dialectal investigated the phonological environment's effects on voiced obstruent acoustics in the two varieties of Spanish investigated here. Since the stop-spirant realization is a phonetic phenomenon (that is, there is no change of meaning between árbol [áɾβol] [áɾbol] 'tree'), acoustic studies could help shed light on the specific differences between the two stop-spirant realization patterns. 
+
+Acoustic studies could also shed light on the realization of /l/. According to the current function defined for the Spain variety, /l/ surfaces as [- continuant] before other coronal segments, such as /r/ (e.g., alrededor [alreðeðoɾ] 'around'). This seems to indicate that there should be a phonetic difference for /l/ when realized in a sequence with any coronal versus when realized in a sequence with any non-coronal.
+
+# Conclusion
+
+Although the current analysis failed to comply with the Underspecification Map conditions, it still accurately predicts [continuant] values for voiced obstruents (as well as all other segments) in both varieties of Spanish under investigation. Furthermore, it does so without referring to the underlying [continuant] value of laterals or voiced obstruents, which is desirable, as these are typically problematic segments in traditional analysis. Laterals pattern separately from all other sonorants, in that it is only [- continuant] when followed by /d/; voiced obstruents, on the other hand, have a difficult pattern to capture since there is equal motivation for the underlying representation to be a stop or a spirant. In the current analysis, I have moved away from using the representation to motivate surface forms, and instead rely entirely on computational knowledge.
+
+\newpage
+
+# References
+
+::: {#refs}
+:::
+
+# Appendix 
+
+# Appendix A {#sec-appendix-a}
+
+This appendix includes explanations for each predicate used in the functions presented in this paper.
+
+`ϕcontinuant_spain()`: Defines [continuant] output value for Spain variety. Returns TRUE or FALSE.
+
+`ϕcontinuant_costarican()`: Defines [continuant] output value for Costa Rican variety. Returns TRUE or FALSE.
+
+`cons()`: Evaluates underlying [continuant] value. Returns TRUE or FALSE.
+
+`son()`: Evaluates underlying [sonorant] value. Returns TRUE or FALSE.
+
+`lateral()`: Evaluates underlying [lateral] value. Returns TRUE or FALSE.
+
+`poa()`: Evaluates surface place of articulation. Returns a value within the set {labial, coronal, dorsal}.
+
+`voice()`: Evaluates underlying [voice] value. Returns TRUE or FALSE.
+
+`⋉()`: Evaluates if a segment begins a domain (e.g., begins a word or phrase). Returns TRUE or FALSE.
+
+`p()`: Evaluates the previous segment.
+
+`s()`: Evaluates the following segment.
+
+# Appendix B {#sec-appendix-b}
+
+This will have the Spain computations.
